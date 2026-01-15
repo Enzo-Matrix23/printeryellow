@@ -345,43 +345,90 @@ NoPokemonText:
 PrintFanClubPortrait::
 	xor a
 	ldh [hCanceledPrinting], a
-	call Printer_PlayPrinterMusic
 	call Printer_GetMonStats
+
 	ldh a, [rIE]
 	push af
 	xor a
 	ldh [rIF], a
 	ld a, $9
 	ldh [rIE], a
+
+	xor a
+	ldh [hAutoBGTransferEnabled], a
+
+; =======================
+; FIRST PAGE (unchanged)
+; =======================
+
 	call StartTransmission_Send9Rows
 	ld a, $13
 	ld [wcae2], a
 	call Printer_CopyTileMapToPrinterTileBuffer
-	call Printer_ResetJoypadHRAM
-.print_loop
-	call JoypadLowSensitivity
-	call Printer_StopIfPressB
-	jr c, .quit
-	ld a, [wPrinterSendState]
-	bit 7, a
-	jr nz, .quit
-	call PrinterTransmissionJumptable
-	call GBPrinter_CheckForErrors
-	call GBPrinter_UpdateStatusMessage
-	call DelayFrame
-	jr .print_loop
+	call .TryPrintPage
+	jr c, .finish_printing
 
-.quit
+; =======================
+; SECOND PAGE (NEW LOGIC)
+; =======================
+
 	xor a
 	ld [wPrinterConnectionOpen], a
 	ld [wPrinterOpcode], a
-	call Printer_CopyTileMapFromPrinterTileBuffer
+	ld c, $c
+	call DelayFrames
+
+	call SaveScreenTilesToBuffer1
+	xor a
+	ldh [hAutoBGTransferEnabled], a
+
+	call Printer_RenderSecondPage
+
+	ld a, $7
+	call Printer_StartTransmission
+	ld a, $4
+	ld [wcae2], a
+	call Printer_CopyTileMapToPrinterTileBuffer
+
+	call LoadScreenTilesFromBuffer1
+	ld a, $1
+	ldh [hAutoBGTransferEnabled], a
+
+	call .TryPrintPage
+
+.finish_printing
+	xor a
+	ld [wPrinterConnectionOpen], a
+	ld [wPrinterOpcode], a
 	xor a
 	ldh [rIF], a
 	pop af
 	ldh [rIE], a
 	call ReloadMapAfterPrinter
 	call Printer_PlayMapMusic
+	ret
+
+.TryPrintPage:
+	call Printer_ResetJoypadHRAM
+.print_loop
+	call JoypadLowSensitivity
+	call Printer_StopIfPressB
+	jr c, .pressed_b
+	ld a, [wPrinterSendState]
+	bit 7, a
+	jr nz, .completed
+	call PrinterTransmissionJumptable
+	call GBPrinter_CheckForErrors
+	call GBPrinter_UpdateStatusMessage
+	call DelayFrame
+	jr .print_loop
+
+.completed
+	and a
+	ret
+
+.pressed_b
+	scf
 	ret
 
 PrinterDebug:
@@ -976,4 +1023,184 @@ PrintPCBox_PlaceHorizontalLines:
 	ret
 
 .HorizontalLineString:
-	db "----------@"
+db "----------@"
+
+PrepareStatEXPPage:
+	call ClearScreen
+	hlcoord 0, 0
+	lb bc, 6, 18
+	call TextBoxBorder
+
+	hlcoord 1, 1
+	ld de, .StatEXP
+	call PlaceString
+
+	hlcoord 1, 2
+	ld de, .HP
+	call PlaceString
+	hlcoord 8, 2
+	ld de, wLoadedMonHPExp + 1
+	lb bc, 2, 5
+	call PrintNumber
+
+	hlcoord 1, 3
+	ld de, .Attack
+	call PlaceString
+	hlcoord 8, 3
+	ld de, wLoadedMonAttackExp + 1
+	lb bc, 2, 5
+	call PrintNumber
+
+	hlcoord 1, 4
+	ld de, .Defense
+	call PlaceString
+	hlcoord 8, 4
+	ld de, wLoadedMonDefenseExp + 1
+	lb bc, 2, 5
+	call PrintNumber
+
+	hlcoord 1, 5
+	ld de, .Speed
+	call PlaceString
+	hlcoord 8, 5
+	ld de, wLoadedMonSpeedExp + 1
+	lb bc, 2, 5
+	call PrintNumber
+
+	hlcoord 1, 6
+	ld de, .Special
+	call PlaceString
+	hlcoord 8, 6
+	ld de, wLoadedMonSpecialExp + 1
+	lb bc, 2, 5
+	call PrintNumber
+
+	ret
+
+.StatEXP:
+	db "Stat EXP:@"
+
+.HP:
+	db "HP:@"
+
+.Attack:
+	db "ATK:@"
+
+.Defense:
+	db "DEF:@"
+
+.Speed:
+	db "SPD:@"
+
+.Special:
+	db "SPC:@"
+
+Printer_RenderSecondPage::
+	call ClearScreen
+	call PrepareStatEXPPage
+	call Printer_DrawDVBlock
+	ret
+
+Printer_DrawDVBlock::
+	hlcoord 1, 9
+	ld de, .DVHeader
+	call PlaceString
+
+	ld hl, wLoadedMonDVs
+
+	; ---- ATK / DEF ----
+	ld a, [hli]
+	ld b, a
+
+	; ATK (hi nibble)
+	ld a, b
+	swap a
+	and $0f
+	ld [wStringBuffer], a
+	hlcoord 5, 11
+	ld hl, wStringBuffer
+	lb bc, 1, 2
+	call PrintNumber
+
+	; DEF (lo nibble)
+	ld a, b
+	and $0f
+	ld [wStringBuffer], a
+	hlcoord 9, 11
+	ld hl, wStringBuffer
+	lb bc, 1, 2
+	call PrintNumber
+
+	; ---- SPD / SPC ----
+	ld a, [hl]
+	ld b, a
+
+	; SPD (hi nibble)
+	ld a, b
+	swap a
+	and $0f
+	ld [wStringBuffer], a
+	hlcoord 13, 11
+	ld hl, wStringBuffer
+	lb bc, 1, 2
+	call PrintNumber
+
+	; SPC (lo nibble)
+	ld a, b
+	and $0f
+	ld [wStringBuffer], a
+	hlcoord 17, 11
+	ld hl, wStringBuffer
+	lb bc, 1, 2
+	call PrintNumber
+
+	call Printer_PrintHPDV
+	ret
+
+.DVHeader:
+	db "HP ATK DEF SPD SPC@"
+
+Printer_PrintHPDV::
+	ld hl, wLoadedMonDVs
+	ld a, [hli]
+	ld b, a      ; ATK/DEF
+	ld a, [hl]
+	ld c, a      ; SPD/SPC
+
+	; ATK bit -> bit 3
+	ld a, b
+	and 1
+	sla a
+	sla a
+	sla a
+	ld d, a
+
+	; DEF bit -> bit 2
+	ld a, b
+	and $10
+	jr z, .no_def
+	ld a, d
+	or 4
+	ld d, a
+.no_def
+
+	; SPD bit -> bit 1
+	ld a, c
+	and $10
+	jr z, .no_spd
+	ld a, d
+	or 2
+	ld d, a
+.no_spd
+
+	; SPC bit -> bit 0
+	ld a, c
+	and 1
+	or d
+
+	ld [wStringBuffer], a
+	hlcoord 1, 11
+	ld hl, wStringBuffer
+	lb bc, 1, 2
+	call PrintNumber
+	ret
