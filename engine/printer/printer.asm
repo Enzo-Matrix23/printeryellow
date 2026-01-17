@@ -345,6 +345,7 @@ NoPokemonText:
 PrintFanClubPortrait::
 	xor a
 	ldh [hCanceledPrinting], a
+	call Printer_PlayPrinterMusic
 	call Printer_GetMonStats
 
 	ldh a, [rIE]
@@ -382,7 +383,7 @@ PrintFanClubPortrait::
 	xor a
 	ldh [hAutoBGTransferEnabled], a
 
-	call Printer_RenderSecondPage
+	call Printer_RendarSecondPage
 
 	ld a, $7
 	call Printer_StartTransmission
@@ -1025,13 +1026,13 @@ PrintPCBox_PlaceHorizontalLines:
 .HorizontalLineString:
 db "----------@"
 
-PrepareStatEXPPage:
+Printer_PrepareStatExp_Page2::
 	call ClearScreen
 	hlcoord 0, 0
 	lb bc, 6, 18
 	call TextBoxBorder
 
-	hlcoord 1, 1
+	hlcoord 5, 1
 	ld de, .StatEXP
 	call PlaceString
 
@@ -1095,112 +1096,68 @@ PrepareStatEXPPage:
 .Special:
 	db "SPC:@"
 
-Printer_RenderSecondPage::
+Printer_RendarSecondPage::
 	call ClearScreen
-	call PrepareStatEXPPage
-	call Printer_DrawDVBlock
+	call Printer_PrepareStatExp_Page2
+	call Printer_PlaceDVsOn_Page2
 	ret
 
-Printer_DrawDVBlock::
-	hlcoord 1, 9
-	ld de, .DVHeader
-	call PlaceString
+; Place the 5 DVs on screen
+Printer_PlaceDVsOn_Page2::
 
-	ld hl, wLoadedMonDVs
+    hlcoord 0, 10
+    ld de, .Page2DV
+    call PlaceString
 
-	; ---- ATK / DEF ----
-	ld a, [hli]
-	ld b, a
+    ; take dvs combined values from wLoadedMonDVs, separate them, and load them into wStringBuffer
+    ; in the reverse SPC-SPD-DEF-ATK-HP order.
+    ld hl, wLoadedMonDVs
+    ld e, %00001111 ; this is used to mask the lower nybble from the whole combined dvs value
+    ld a, [hli]
+    ld d, a
+    push de
+    ld d, [hl]
+    ld hl, wStringBuffer
+    lb bc, 0, 4 ; b set to 0 and is used for the HP DV
+    ; c is the amount of nybbles (4)
+.nextNybble
+    ld a, d
+    and e
+    ld [hli], a
+    rra
+    rr b
+    dec c
+    jr z, .done
+    swap d
+    bit 0, c
+    jr nz, .nextNybble
+    pop de
+    jr .nextNybble
+.done
+    swap b
+    ld [hl], b
 
-	; ATK (hi nibble)
-	ld a, b
-	swap a
-	and $0f
-	ld [wStringBuffer], a
-	hlcoord 5, 11
-	ld hl, wStringBuffer
-	lb bc, 1, 2
-	call PrintNumber
+    ; hl now point to wStringBuffer + 4, transfer it into de for use with PrintNumber
+    ld d, h
+    ld e, l
 
-	; DEF (lo nibble)
-	ld a, b
-	and $0f
-	ld [wStringBuffer], a
-	hlcoord 9, 11
-	ld hl, wStringBuffer
-	lb bc, 1, 2
-	call PrintNumber
+    ; Place the previously separated DVs on screen at regular interval.
+	hlcoord 0, 11 ; starting positionon screen
+	ld bc, 2 ; spacing between the dvs (the value is based on how HL move during PrintNumber
+    ; you may need to adjust it until you get the wanted result)
+    ld a, 5 ; amount of DVs to place on screen
+.printNextDV
+    push bc
+    push af
+	lb bc, (1 | LEADING_ZEROES), 2 ; this is the number format
+	; see the PrintNumber function comment for explanations
+    call PrintNumber
+    pop af
+    pop bc
+    add hl, bc
+    dec a
+    jr nz, .printNextDV
+    ret
 
-	; ---- SPD / SPC ----
-	ld a, [hl]
-	ld b, a
-
-	; SPD (hi nibble)
-	ld a, b
-	swap a
-	and $0f
-	ld [wStringBuffer], a
-	hlcoord 13, 11
-	ld hl, wStringBuffer
-	lb bc, 1, 2
-	call PrintNumber
-
-	; SPC (lo nibble)
-	ld a, b
-	and $0f
-	ld [wStringBuffer], a
-	hlcoord 17, 11
-	ld hl, wStringBuffer
-	lb bc, 1, 2
-	call PrintNumber
-
-	call Printer_PrintHPDV
-	ret
-
-.DVHeader:
-	db "HP ATK DEF SPD SPC@"
-
-Printer_PrintHPDV::
-	ld hl, wLoadedMonDVs
-	ld a, [hli]
-	ld b, a      ; ATK/DEF
-	ld a, [hl]
-	ld c, a      ; SPD/SPC
-
-	; ATK bit -> bit 3
-	ld a, b
-	and 1
-	sla a
-	sla a
-	sla a
-	ld d, a
-
-	; DEF bit -> bit 2
-	ld a, b
-	and $10
-	jr z, .no_def
-	ld a, d
-	or 4
-	ld d, a
-.no_def
-
-	; SPD bit -> bit 1
-	ld a, c
-	and $10
-	jr z, .no_spd
-	ld a, d
-	or 2
-	ld d, a
-.no_spd
-
-	; SPC bit -> bit 0
-	ld a, c
-	and 1
-	or d
-
-	ld [wStringBuffer], a
-	hlcoord 1, 11
-	ld hl, wStringBuffer
-	lb bc, 1, 2
-	call PrintNumber
-	ret
+.Page2DV:
+    db "HP ATK DEF SPD SPC@"
