@@ -1036,41 +1036,34 @@ Printer_PrepareStatExp_Page2::
 	ld de, .StatEXP
 	call PlaceString
 
+	ld hl, hUILayoutFlags
+	set BIT_SINGLE_SPACED_LINES, [hl]
 	hlcoord 1, 2
-	ld de, .HP
+	ld de, .StatStrings
 	call PlaceString
+	ld hl, hUILayoutFlags
+	res BIT_SINGLE_SPACED_LINES, [hl]
+
 	hlcoord 8, 2
 	ld de, wLoadedMonHPExp + 1
 	lb bc, 2, 5
 	call PrintNumber
 
-	hlcoord 1, 3
-	ld de, .Attack
-	call PlaceString
 	hlcoord 8, 3
 	ld de, wLoadedMonAttackExp + 1
 	lb bc, 2, 5
 	call PrintNumber
 
-	hlcoord 1, 4
-	ld de, .Defense
-	call PlaceString
 	hlcoord 8, 4
 	ld de, wLoadedMonDefenseExp + 1
 	lb bc, 2, 5
 	call PrintNumber
 
-	hlcoord 1, 5
-	ld de, .Speed
-	call PlaceString
 	hlcoord 8, 5
 	ld de, wLoadedMonSpeedExp + 1
 	lb bc, 2, 5
 	call PrintNumber
 
-	hlcoord 1, 6
-	ld de, .Special
-	call PlaceString
 	hlcoord 8, 6
 	ld de, wLoadedMonSpecialExp + 1
 	lb bc, 2, 5
@@ -1081,20 +1074,12 @@ Printer_PrepareStatExp_Page2::
 .StatEXP:
 	db "Stat EXP:@"
 
-.HP:
-	db "HP:@"
-
-.Attack:
-	db "ATK:@"
-
-.Defense:
-	db "DEF:@"
-
-.Speed:
-	db "SPD:@"
-
-.Special:
-	db "SPC:@"
+.StatStrings:
+	db "HP:"
+	next "ATK:"
+	next "DEF:"
+	next "SPD:"
+	next "SPC:@"
 
 Printer_RendarSecondPage::
 	call ClearScreen
