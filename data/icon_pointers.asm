@@ -21,6 +21,8 @@ MonPartySpritePointers:
 	mon_icon_header QuadrupedIconFrame1,  0, 1, ICON_QUADRUPED << 2
 	mon_icon_header QuadrupedIconFrame1,  1, 1, ICON_QUADRUPED << 2 + 2
 	mon_icon_header PikachuSprite,        0, 4, ICON_PIKACHU << 2
+	mon_icon_header DratiniSprite,		  0, 4, ICON_DRATINI << 2
+	mon_icon_header KabutoSprite,		  0, 4, ICON_KABUTO << 2
 	mon_icon_header TradeBubbleIconGFX,   0, 4, ICON_TRADEBUBBLE << 2
 	mon_icon_header MonsterSprite,        0, 4, ICONOFFSET + ICON_MON << 2
 	mon_icon_header PokeBallSprite,       0, 8, ICONOFFSET + ICON_BALL << 2
@@ -36,4 +38,6 @@ MonPartySpritePointers:
 	mon_icon_header QuadrupedIconFrame2,  0, 1, ICONOFFSET + ICON_QUADRUPED << 2
 	mon_icon_header QuadrupedIconFrame2,  1, 1, ICONOFFSET + ICON_QUADRUPED << 2 + 2
 	mon_icon_header PikachuSprite,       12, 4, ICONOFFSET + ICON_PIKACHU << 2
+	mon_icon_header DratiniSprite,		 12, 4, ICONOFFSET + ICON_DRATINI << 2
+	mon_icon_header KabutoSprite,		 12, 4, ICONOFFSET + ICON_KABUTO << 2
 	mon_icon_header TradeBubbleIconGFX,   4, 4, ICONOFFSET + ICON_TRADEBUBBLE << 2

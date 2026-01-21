@@ -12,7 +12,9 @@
 	const ICON_SNAKE       ; $8
 	const ICON_QUADRUPED   ; $9
 	const ICON_PIKACHU     ; $a
-	const_skip 3
+	const ICON_DRATINI	   ; $b
+	const ICON_KABUTO      ; $c
+	const_skip 1
 	const ICON_TRADEBUBBLE ; $e
 
 DEF ICONOFFSET EQU $40 ; difference between alternating icon frames' tile IDs

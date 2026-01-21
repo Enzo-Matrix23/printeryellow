@@ -68,6 +68,8 @@ SpriteSheetPointerTable:
 	overworld_sprite LoreleiSprite, 12          ; SPRITE_LORELEI
 	overworld_sprite SeelSprite, 12             ; SPRITE_SEEL
 	overworld_sprite PikachuSprite, 12          ; SPRITE_PIKACHU
+	overworld_sprite DratiniSprite, 12			; SPRITE_DRATINI
+	overworld_sprite KabutoSprite, 12			; SPRITE_KABUTO
 	overworld_sprite OfficerJennySprite, 12     ; SPRITE_OFFICER_JENNY
 	overworld_sprite SandshrewSprite, 12        ; SPRITE_SANDSHREW
 	overworld_sprite OddishSprite, 12           ; SPRITE_ODDISH
@@ -88,5 +90,5 @@ SpriteSheetPointerTable:
 	overworld_sprite OldAmberSprite, 4          ; SPRITE_OLD_AMBER
 	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_UNUSED_GAMBLER_ASLEEP_1
 	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_UNUSED_GAMBLER_ASLEEP_2
-	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_GAMBLER_ASLEEP
+	overworld_sprite GamblerAsleepSprite, 4     ; SPRITE_GAMBLER_ASLEEP 
 	assert_table_length NUM_SPRITES

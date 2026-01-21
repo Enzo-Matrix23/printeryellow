@@ -951,17 +951,17 @@ OverworldPikachuBallGFX:
 INCBIN "gfx/overworld/pikachu_ball.2bpp"
 
 LoadPikachuSpriteIntoVRAM:
-	ld de, PikachuSprite
-	lb bc, BANK(PikachuSprite), (SandshrewSprite - PikachuSprite) / 32
+	ld de, DratiniSprite
+	lb bc, BANK(DratiniSprite), (KabutoSprite - DratiniSprite) / 32
 	ld hl, vNPCSprites + $c * $10
 	push bc
 	call CopyVideoDataAlternate
-	ld de, PikachuSprite + $c * $10
+	ld de, DratiniSprite + $c * $10
 	ld hl, vNPCSprites2 + $c * $10
 	ldh a, [hPikachuSpriteVRAMOffset]
 	and a
 	jr z, .load
-	ld de, PikachuSprite + $c * $10
+	ld de, DratiniSprite + $c * $10
 	ld hl, vNPCSprites2 + $4c * $10
 .load
 	pop bc
