@@ -30,7 +30,7 @@ jobs:
           rm -rf rgbds
 
       - name: Compare
-        if: ${{ github.repository_owner == 'enzo-matrix23' }}
+        if: ${{ github.repository_owner == 'Cameron Taylor' }}
         run: |
           make DEBUG=1 -j$(nproc) compare
           if ! git diff-index --quiet HEAD --; then
@@ -40,7 +40,7 @@ jobs:
           fi
 
       - name: Make
-        if: ${{ github.repository_owner != 'enzo-matrix23' }}
+        if: ${{ github.repository_owner != 'Cameron Taylor' }}
         run: |
           make -j$(nproc)
           if ! git diff-index --quiet HEAD --; then
@@ -50,20 +50,20 @@ jobs:
           fi
 
       - name: Checkout symbols
-        if: ${{ github.event_name == 'push' && github.repository_owner == 'enzo-matrix23' }}
+        if: ${{ github.event_name == 'push' && github.repository_owner == 'Cameron Taylor' }}
         uses: actions/checkout@master
         with:
           path: symbols
           ref: symbols
 
       - name: Move symbols
-        if: ${{ github.event_name == 'push' && github.repository_owner == 'enzo-matrix23' }}
+        if: ${{ github.event_name == 'push' && github.repository_owner == 'Cameron Taylor' }}
         run: |
           cp -v *.sym symbols/
           cp -v *.map symbols/
 
       - name: Update symbols
-        if: ${{ github.event_name == 'push' && github.repository_owner == 'enzo-matrix23' }}
+        if: ${{ github.event_name == 'push' && github.repository_owner == 'Cameron Taylor' }}
         uses: EndBug/add-and-commit@v9
         with:
           cwd: "./symbols"
