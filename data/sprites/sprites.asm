@@ -68,8 +68,6 @@ SpriteSheetPointerTable:
 	overworld_sprite LoreleiSprite, 12          ; SPRITE_LORELEI
 	overworld_sprite SeelSprite, 12             ; SPRITE_SEEL
 	overworld_sprite PikachuSprite, 12          ; SPRITE_PIKACHU
-	overworld_sprite DratiniSprite, 12			; SPRITE_DRATINI
-	overworld_sprite KabutoSprite, 12			; SPRITE_KABUTO
 	overworld_sprite OfficerJennySprite, 12     ; SPRITE_OFFICER_JENNY
 	overworld_sprite SandshrewSprite, 12        ; SPRITE_SANDSHREW
 	overworld_sprite OddishSprite, 12           ; SPRITE_ODDISH
@@ -79,6 +77,8 @@ SpriteSheetPointerTable:
 	overworld_sprite ChanseySprite, 12          ; SPRITE_CHANSEY
 	overworld_sprite JessieSprite, 12           ; SPRITE_JESSIE
 	overworld_sprite JamesSprite, 12            ; SPRITE_JAMES
+	overworld_sprite DratiniSprite, 12			; SPRITE_DRATINI
+	overworld_sprite KabutoSprite, 12			; SPRITE_KABUTO
 	overworld_sprite PokeBallSprite, 4          ; SPRITE_POKE_BALL
 	overworld_sprite FossilSprite, 4            ; SPRITE_FOSSIL
 	overworld_sprite BoulderSprite, 4           ; SPRITE_BOULDER
