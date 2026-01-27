@@ -1563,7 +1563,7 @@ TryRunningFromBattle:
 	ld hl, hEnemySpeed
 	ld c, 2
 	call StringCmp
-	jr nc, .canEscape ; jump if player speed greater than enemy speed
+	jp nc, .canEscape ; jump if player speed greater than enemy speed
 	xor a
 	ldh [hMultiplicand], a
 	ld a, 32
@@ -1614,6 +1614,27 @@ TryRunningFromBattle:
 	ld hl, CantEscapeText
 	jr .printCantEscapeOrNoRunningText
 .trainerBattle
+IF DEF(_DEBUG)
+
+	; Faint the current enemy mon (prints faint text + animation)
+	call FaintEnemyPokemon
+
+	; Print "<Trainer> defeated!" text and award prize money
+	call TrainerBattleVictory
+
+	; Ensure battle result is recorded as a win (some EndOfBattle paths check it)
+	ld [wBattleResult], a
+
+	callfar EndOfBattle
+	pop af
+	ld [wLetterPrintingDelayFlags], a
+	pop af
+	ld [wMapPalOffset], a
+	ld a, [wSavedTileAnimations]
+	ldh [hTileAnimations], a
+	scf
+	ret
+ENDC
 	ld hl, NoRunningText
 .printCantEscapeOrNoRunningText
 	call PrintText

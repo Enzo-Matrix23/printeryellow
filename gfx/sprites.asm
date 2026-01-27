@@ -88,7 +88,7 @@ SurfingPikachuSprite::   INCBIN "gfx/sprites/surfing_pikachu.2bpp"
 JessieSprite::           INCBIN "gfx/sprites/jessie.2bpp"
 JamesSprite::            INCBIN "gfx/sprites/james.2bpp"
 
-SECTION "NPC Sprites 4", ROMX, BANK[64]
+SECTION "NPC Sprites 4", ROMX
 
 DratiniSprite::          INCBIN "gfx/sprites/dratini.2bpp"
 KabutoSprite::           INCBIN "gfx/sprites/kabuto.2bpp"
